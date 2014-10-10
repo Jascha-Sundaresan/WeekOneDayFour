@@ -6,17 +6,18 @@ class WordChainer
     @dictionary = File.readlines(dictionary_file_name).map!(&:chomp).to_set
   end
   
-  def adjacent_words(word)
-    array_of_possible_words(word).select! {|possible_word| @dictionary.include?(possible_word)}
-  end
+  # def adjacent_words(word)
+  #   array_of_possible_words(word).select! {|possible_word| @dictionary.include?(possible_word)}
+  # end
   
-  def array_of_possible_words(word)
+  def adjacent_words(word)
     array = []
     word.length.times do |idx|
       ("a".."z").each do |letter|
+        next if word[idx] == letter
         new_word = word.dup
         new_word[idx] = letter
-        array << new_word unless new_word == word || array.include?(new_word)
+        array << new_word if @dictionary.include?(new_word)
       end
     end
     array
@@ -24,12 +25,11 @@ class WordChainer
   
   def run(source, target)
     @current_words = [source]
-    @all_seen_words = {source => nil }
+    @all_seen_words = { source => nil }
     
     until @current_words.empty? || @all_seen_words[target] != nil
-      new_current_words = explore_current_words
-      @current_words = new_current_words
-      
+      # new_current_words = 
+      @current_words = explore_current_words
     end
     build_path(target)
   end 
@@ -49,10 +49,8 @@ class WordChainer
   def build_path(target)
     result = []
     word = target
-    until @all_seen_words[word] == nil
-      result << word
-      word = @all_seen_words[word]
-    end
+    
+    while (result << word && word = @all_seen_words[word]); end
     result.reverse
   end
   
